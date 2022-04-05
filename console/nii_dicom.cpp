@@ -4182,7 +4182,7 @@ struct TDICOMdata readDICOMx(char *fname, struct TDCMprefs *prefs, struct TDTI4D
 #define kRadionuclidePositronFraction 0x0018 + (0x1076 << 16)
 #define kGantryTilt 0x0018 + (0x1120 << 16)
 #define kXRayTimeMS 0x0018 + (0x1150 << 16) //IS
-#define kXRayTubeCurrent 0x0018 + (0x1151 << 16) //IS	
+#define kXRayTubeCurrent 0x0018 + (0x1151 << 16) //IS
 #define kXRayExposure 0x0018 + (0x1152 << 16)
 #define kConvolutionKernel 0x0018 + (0x1210 << 16) //SH
 #define kFrameDuration 0x0018 + (0x1242 << 16) //IS
@@ -4227,6 +4227,7 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 // https://nciphub.org/groups/qindicom/wiki/DiffusionrelatedDICOMtags:experienceacrosssites?action=pdf
 #define kDiffusion_bValueSiemens 0x0019 + (0x100C << 16) //IS
 #define kDiffusionGradientDirectionSiemens 0x0019 + (0x100E << 16) //FD
+// #define kSliceResolution 0x0019 + (0x1017 << 16) //'DS' 'SliceResolution'
 #define kSeriesPlaneGE 0x0019 + (0x1017 << 16) //SS
 #define kDwellTime 0x0019 + (0x1018 << 16) //IS in NSec, see https://github.com/rordenlab/dcm2niix/issues/127
 #define kLastScanLoc 0x0019 + (0x101B << 16)
@@ -4373,7 +4374,7 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 #define kMRImageDiffBValueNumber 0x2005 + (0x1412 << 16) //IS
 #define kMRImageGradientOrientationNumber 0x2005+(0x1413 << 16) //IS
 #define kMRImageLabelType 0x2005 + (0x1429 << 16) //CS ASL LBL_CTL https://github.com/physimals/dcm_convert_phillips/
-#define kMRImageDiffVolumeNumber 0x2005+(0x1596 << 16) //IS 
+#define kMRImageDiffVolumeNumber 0x2005+(0x1596 << 16) //IS
 #define kSharedFunctionalGroupsSequence 0x5200 + uint32_t(0x9229 << 16) // SQ
 #define kPerFrameFunctionalGroupsSequence 0x5200 + uint32_t(0x9230 << 16) // SQ
 #define kWaveformSq 0x5400 + (0x0100 << 16)
@@ -4651,7 +4652,7 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 					dcmDim[numDimensionIndexValues].dimIdx[0] = 1;
 					dcmDim[numDimensionIndexValues].dimIdx[1] = sliceNumberMrPhilips;
 					dcmDim[numDimensionIndexValues].dimIdx[2] = philMRImageDiffVolumeNumber;
-				} else { 
+				} else {
 					for (int i = 0; i < ndim; i++)
 						dcmDim[numDimensionIndexValues].dimIdx[i] = d.dimensionIndexValues[dimensionIndexOrder[i]];
 				}
@@ -6483,7 +6484,7 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 			if (d.manufacturer == kMANUFACTURER_PHILIPS)
 				gradientOrientationNumberPhilips = dcmStrInt(lLength, &buffer[lPos]);
 			break;
-		case kMRImageLabelType : //CS ??? LBL CTL 
+		case kMRImageLabelType : //CS ??? LBL CTL
 			if ((d.manufacturer != kMANUFACTURER_PHILIPS) || (lLength < 2)) break;
 			//TODO529: issue529 for ASL LBL/CTL  "LABEL"
 			//if (toupper(buffer[lPos]) == 'L') isLabel = true;
@@ -7436,7 +7437,7 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 		d.epiVersionGE = kGE_EPI_PEPOLAR_REV_FWD_FLIP;
 	if ((d.epiVersionGE == kGE_EPI_PEPOLAR_FWD_REV) && (volumeNumber > 0) && ((volumeNumber % 2) == 0))
 		d.epiVersionGE = kGE_EPI_PEPOLAR_FWD_REV_FLIP;
-	#ifndef myDisableGEPEPolarFlip //e.g. to disable patch for issue 532 "make CFLAGS=-DmyDisableGEPEPolarFlip" 
+	#ifndef myDisableGEPEPolarFlip //e.g. to disable patch for issue 532 "make CFLAGS=-DmyDisableGEPEPolarFlip"
 	if ((d.epiVersionGE == kGE_EPI_PEPOLAR_REV) || (d.epiVersionGE == kGE_EPI_PEPOLAR_FWD_REV_FLIP)  || (d.epiVersionGE == kGE_EPI_PEPOLAR_REV_FWD_FLIP)) {
 		if (d.epiVersionGE != kGE_EPI_PEPOLAR_REV) d.seriesNum += 1000;
 		if (d.phaseEncodingGE == kGE_PHASE_ENCODING_POLARITY_UNFLIPPED)
@@ -7494,10 +7495,10 @@ const uint32_t kEffectiveTE = 0x0018 + (0x9082 << 16);
 	d.rawDataRunNumber =  (d.rawDataRunNumber > volumeNumber) ? d.rawDataRunNumber : volumeNumber;
 	d.rawDataRunNumber =  (d.rawDataRunNumber > gradientOrientationNumberPhilips) ? d.rawDataRunNumber : gradientOrientationNumberPhilips;
 	if ((d.rawDataRunNumber < 0) && (d.manufacturer == kMANUFACTURER_PHILIPS) && (nDimIndxVal > 1) && (d.dimensionIndexValues[nDimIndxVal - 1] > 0))
-		d.rawDataRunNumber =  d.dimensionIndexValues[nDimIndxVal - 1]; //Philips enhanced scans converted to classic with dcuncat 
+		d.rawDataRunNumber =  d.dimensionIndexValues[nDimIndxVal - 1]; //Philips enhanced scans converted to classic with dcuncat
 	if (philMRImageDiffVolumeNumber > 0) { //use 2005,1596 for Philips DWI >= R5.6
 		d.rawDataRunNumber = philMRImageDiffVolumeNumber;
-		d.phaseNumber  = 0; 
+		d.phaseNumber  = 0;
 	}
 	// d.rawDataRunNumber =  (d.rawDataRunNumber > d.phaseNumber) ? d.rawDataRunNumber : d.phaseNumber; //will not work: conflict for MultiPhase ASL with multiple averages
 	//end: issue529
